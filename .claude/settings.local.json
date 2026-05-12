@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(timeout 90 bash *)",
+      "Bash(NODE_OPTIONS=\"--use-system-ca\" npm install)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(NODE_OPTIONS=\"--use-system-ca\" npx tsc --noEmit)",
+      "Bash(curl -s \"https://api.consumerfinance.gov/data/complaints.json?product=Debt+collection&sub_product=Medical+debt&has_narrative=true&size=2&field=all\")",
+      "Bash(curl -v \"https://api.consumerfinance.gov/data/complaints.json?product=Debt+collection&sub_product=Medical+debt&has_narrative=true&size=2\")",
+      "Bash(curl *)",
+      "Bash(NODE_OPTIONS=\"--use-system-ca\" npx tsx phase1/ingest.ts --max 5)",
+      "Bash(NODE_OPTIONS=\"--use-system-ca\" npx tsx phase1/ingest.ts --dry-run)",
+      "Bash(npm run *)",
+      "WebFetch(domain:cfpb.github.io)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(npx tsc *)",
+      "Bash(powershell -NoProfile -Command \"Get-Content 'C:\\\\Users\\\\mabka\\\\OneDrive\\\\Desktop\\\\sam_use_cases\\\\data\\\\complaints.json' -Encoding UTF8 -TotalCount 1 | Select-Object -First 1\")",
+      "WebFetch(domain:www.reddit.com)",
+      "Skill(claude-api)"
+    ]
+  }
+}

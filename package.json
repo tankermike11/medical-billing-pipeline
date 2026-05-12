@@ -1,0 +1,25 @@
+{
+  "name": "sam-billing-complaint-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "phase1": "tsx phase1/ingest.ts",
+    "phase2": "tsx phase2/scrape.ts",
+    "phase3": "tsx phase3/analyze.ts",
+    "db:init": "tsx shared/db.ts",
+    "db:summary": "tsx shared/summary.ts",
+    "phase3:report": "tsx phase3/analyze.ts --report",
+    "phase3:html": "tsx phase3/report-html.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0"
+  }
+}
