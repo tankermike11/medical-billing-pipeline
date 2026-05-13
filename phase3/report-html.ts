@@ -113,7 +113,7 @@ function loadData() {
   const ppCounts    = new Map<string, number>();
   const catCounts   = new Map<string, number>();
   const priCounts   = { high: 0, medium: 0, low: 0 };
-  const reqMap      = new Map<string, { category: string; priority: string; count: number; cfpb: number; reddit: number }>();
+  const reqMap      = new Map<string, { category: string; priority: string; count: number; cfpb: number; reddit: number; fullReq: string }>();
 
   for (const row of aggRows) {
     const isCFPB   = row.source === 'CFPB';
@@ -137,6 +137,7 @@ function loadData() {
         count:  (ex?.count  ?? 0) + 1,
         cfpb:   (ex?.cfpb   ?? 0) + (isCFPB ? 1 : 0),
         reddit: (ex?.reddit ?? 0) + (isCFPB ? 0 : 1),
+        fullReq: ex?.fullReq ?? r.requirement,
       });
     }
   }
@@ -152,6 +153,22 @@ function loadData() {
   const top = (m: Map<string, number>, n: number) =>
     [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n);
 
+  const trimmedReqList = reqList.slice(0, 80);
+
+  // Map each requirement index → browse record indices that matched it
+  const reqKeyToIdx = new Map<string, number>();
+  trimmedReqList.forEach((r, i) => reqKeyToIdx.set(r.req, i));
+
+  const reqIndex: number[][] = trimmedReqList.map(() => []);
+  browseRows.forEach((row, rowIdx) => {
+    const reqs: ProductRequirement[] = JSON.parse(row.product_requirements || '[]');
+    for (const r of reqs) {
+      const k = r.requirement.slice(0, 120);
+      const i = reqKeyToIdx.get(k);
+      if (i !== undefined) reqIndex[i].push(rowIdx);
+    }
+  });
+
   return {
     meta,
     cfpbMeta,
@@ -160,7 +177,8 @@ function loadData() {
     topPPs:    top(ppCounts, 12),
     topCats:   top(catCounts, 12),
     priCounts,
-    reqList:   reqList.slice(0, 80),
+    reqList:   trimmedReqList,
+    reqIndex,
     browseRows,
     allThemes: [...themeCounts.keys()].sort(),
   };
@@ -178,7 +196,7 @@ function priorityBadge(p: string) {
 }
 
 function buildHtml(d: ReturnType<typeof loadData>): string {
-  const { meta, cfpbMeta, subreddits, topThemes, topPPs, topCats, priCounts, reqList, browseRows, allThemes } = d;
+  const { meta, cfpbMeta, subreddits, topThemes, topPPs, topCats, priCounts, reqList, reqIndex, browseRows, allThemes } = d;
   const now = new Date().toLocaleString();
 
   // Serialise browse data as JSON for the in-page JS
@@ -200,14 +218,20 @@ function buildHtml(d: ReturnType<typeof loadData>): string {
     body:       r.body ?? null,
   }));
 
-  const reqRows = reqList.map(r => `
+  const reqRows = reqList.map((r, i) => `
     <tr>
-      <td>${priorityBadge(r.priority)}</td>
-      <td><span class="cat-badge">${esc(r.category)}</span></td>
-      <td style="font-size:13px">${esc(r.req)}</td>
-      <td class="num">${r.count}</td>
-      <td class="num" style="color:#2563eb">${r.cfpb}</td>
-      <td class="num" style="color:#7c3aed">${r.reddit}</td>
+      <td style="vertical-align:top;padding-top:10px">${priorityBadge(r.priority)}</td>
+      <td style="vertical-align:top;padding-top:10px"><span class="cat-badge">${esc(r.category)}</span></td>
+      <td style="font-size:13px;white-space:normal;word-break:break-word;line-height:1.5">${esc(r.fullReq)}</td>
+      <td class="num" style="vertical-align:top;padding-top:10px">${r.count}</td>
+      <td class="num" style="color:#2563eb;vertical-align:top;padding-top:10px">${r.cfpb}</td>
+      <td class="num" style="color:#7c3aed;vertical-align:top;padding-top:10px">${r.reddit}</td>
+      <td style="vertical-align:top;padding-top:8px"><button class="show-ex-btn" onclick="toggleReqExamples(${i},this)">Examples ▾</button></td>
+    </tr>
+    <tr class="req-ex-row" id="req-ex-${i}" style="display:none">
+      <td colspan="7" style="padding:0 10px 12px 10px">
+        <div class="req-ex-list" id="req-ex-list-${i}"></div>
+      </td>
     </tr>`).join('');
 
   const subRedditRows = subreddits.map(s =>
@@ -304,6 +328,21 @@ select.filter-select{padding:6px 10px;border:1px solid #d1d5db;border-radius:7px
 .req-cat{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
 .req-text{font-weight:500;margin:2px 0}
 .req-evidence{color:#64748b;font-style:italic}
+/* ── Download button ── */
+.dl-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#1e293b;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
+.dl-btn:hover{background:#334155}
+/* ── Requirements examples ── */
+.show-ex-btn{font-size:11px;color:#3b82f6;cursor:pointer;background:none;border:1px solid #bfdbfe;border-radius:5px;padding:3px 8px;white-space:nowrap;transition:all .15s}
+.show-ex-btn:hover{background:#eff6ff}
+.show-ex-btn.open{color:#1d4ed8;background:#eff6ff}
+.req-ex-row td{background:#f8fafc}
+.req-ex-list{display:flex;flex-direction:column;gap:8px;padding:4px 0}
+.req-ex-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px}
+.req-ex-card-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.req-ex-card-title{font-size:13px;font-weight:600;color:#1e293b;flex:1;min-width:0}
+.req-ex-pps{list-style:none;padding:0;display:flex;flex-direction:column;gap:3px}
+.req-ex-pps li{font-size:12px;color:#374151;padding-left:12px;position:relative}
+.req-ex-pps li::before{content:"•";position:absolute;left:0;color:#9ca3af}
 @media(max-width:720px){.grid2,.grid3,.step-grid,.source-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -412,6 +451,7 @@ select.filter-select{padding:6px 10px;border:1px solid #d1d5db;border-radius:7px
         ${allThemes.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}
       </select>
       <span class="record-count" id="recordCount"></span>
+      <button class="dl-btn" id="dlBtn" style="display:none" onclick="downloadThemeCsv()">⬇ Download CSV</button>
     </div>
     <div class="record-list" id="recordList"></div>
   </div>
@@ -419,10 +459,10 @@ select.filter-select{padding:6px 10px;border:1px solid #d1d5db;border-radius:7px
 
 <!-- ══ TAB: REQUIREMENTS ═════════════════════════════════════════════════════ -->
 <div class="tab-content" id="tab-requirements">
-  <p style="color:#64748b;font-size:13px;margin-bottom:16px">Product requirements extracted across all records, ranked by priority then frequency. CFPB and Reddit columns show how many records from each source surfaced this requirement.</p>
+  <p style="color:#64748b;font-size:13px;margin-bottom:16px">Product requirements extracted across all records, ranked by priority then frequency. CFPB and Reddit columns show how many records from each source surfaced this requirement. Click Examples to see the specific records behind each requirement.</p>
   <div class="panel">
     <table>
-      <thead><tr><th>Priority</th><th>Category</th><th>Requirement</th><th title="Total">#</th><th title="From CFPB" style="color:#2563eb">CFPB</th><th title="From Reddit" style="color:#7c3aed">Reddit</th></tr></thead>
+      <thead><tr><th>Priority</th><th>Category</th><th>Requirement</th><th title="Total">#</th><th title="From CFPB" style="color:#2563eb">CFPB</th><th title="From Reddit" style="color:#7c3aed">Reddit</th><th></th></tr></thead>
       <tbody>${reqRows}</tbody>
     </table>
   </div>
@@ -449,7 +489,9 @@ new Chart(document.getElementById('priChart'),{type:'doughnut',data:{labels:['Hi
 
 // ── Record browser ────────────────────────────────────────────────────────────
 const ALL_RECORDS = ${JSON.stringify(browseData)};
+const REQ_INDEX = ${JSON.stringify(reqIndex)};
 let sourceFilter = 'all';
+let lastVisible = [];
 
 function setSource(s, btn) {
   sourceFilter = s;
@@ -460,17 +502,22 @@ function setSource(s, btn) {
 
 function filterRecords() {
   const q = document.getElementById('searchBox').value.toLowerCase();
-  const theme = document.getElementById('themeFilter').value.toLowerCase();
+  const theme = document.getElementById('themeFilter').value;
+  const themeLower = theme.toLowerCase();
   const visible = ALL_RECORDS.filter(r => {
     if (sourceFilter !== 'all' && r.source !== sourceFilter) return false;
-    if (theme && !r.themes.some(t => t.toLowerCase().includes(theme))) return false;
+    if (themeLower && !r.themes.some(t => t.toLowerCase().includes(themeLower))) return false;
     if (q) {
       const hay = [r.title, r.narrative, r.body, ...r.themes, ...r.pps].join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
   });
+  lastVisible = visible;
   document.getElementById('recordCount').textContent = visible.length + ' records';
+  const dlBtn = document.getElementById('dlBtn');
+  dlBtn.style.display = theme ? 'inline-flex' : 'none';
+  if (theme) dlBtn.textContent = '⬇ Download CSV — ' + theme + ' (' + visible.length + ')';
   renderRecords(visible);
 }
 
@@ -518,6 +565,80 @@ function toggleDetail(i) {
 function esc(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Theme CSV export ──────────────────────────────────────────────────────────
+function downloadThemeCsv() {
+  const theme = document.getElementById('themeFilter').value;
+  if (!theme || !lastVisible.length) return;
+
+  const maxPps = lastVisible.reduce((m, r) => Math.max(m, r.pps.length), 0);
+
+  const headers = ['Theme', 'Source', 'Title'];
+  for (let i = 1; i <= maxPps; i++) headers.push('Pain Point ' + i);
+
+  function csvCell(v) {
+    const s = v == null ? '' : String(v);
+    if (s.includes(',') || s.includes('"') || s.includes('\\n')) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+
+  const rows = lastVisible.map(r => {
+    const isReddit = r.source === 'REDDIT';
+    const title = isReddit
+      ? (r.title || r.id)
+      : 'Medical Debt Complaint · ' + (r.state || '') + (r.date ? ' · ' + r.date : '');
+    const cells = [theme, r.source, title, ...r.pps];
+    while (cells.length < headers.length) cells.push('');
+    return cells.map(csvCell).join(',');
+  });
+
+  const csv = '\\uFEFF' + [headers.map(csvCell).join(','), ...rows].join('\\r\\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'theme-' + theme.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Requirements examples ─────────────────────────────────────────────────────
+function toggleReqExamples(i, btn) {
+  const row = document.getElementById('req-ex-' + i);
+  const list = document.getElementById('req-ex-list-' + i);
+  const isOpen = row.style.display !== 'none';
+  if (isOpen) {
+    row.style.display = 'none';
+    btn.textContent = 'Examples ▾';
+    btn.classList.remove('open');
+    return;
+  }
+  const indices = REQ_INDEX[i] || [];
+  const records = [...new Set(indices)].map(idx => ALL_RECORDS[idx]).filter(Boolean);
+  list.innerHTML = records.slice(0, 25).map(r => {
+    const isReddit = r.source === 'REDDIT';
+    const srcBadge = isReddit ? '<span class="src-reddit">Reddit</span>' : '<span class="src-cfpb">CFPB</span>';
+    const title = isReddit
+      ? esc(r.title || r.id)
+      : 'Medical Debt Complaint · ' + esc(r.state || '') + (r.date ? ' · ' + esc(r.date) : '');
+    const pps = r.pps.slice(0, 3).map(p => '<li>' + esc(p) + '</li>').join('');
+    return '<div class="req-ex-card">'
+      + '<div class="req-ex-card-header">'
+      + srcBadge
+      + '<span class="req-ex-card-title">' + title + '</span>'
+      + '</div>'
+      + (pps ? '<ul class="req-ex-pps">' + pps + '</ul>' : '')
+      + '</div>';
+  }).join('') || '<p style="color:#94a3b8;font-size:12px">No examples found.</p>';
+  if (records.length > 25) {
+    list.innerHTML += '<p style="font-size:11px;color:#94a3b8;margin-top:4px">Showing 25 of ' + records.length + ' examples</p>';
+  }
+  row.style.display = 'table-row';
+  btn.textContent = 'Examples ▴';
+  btn.classList.add('open');
 }
 
 filterRecords();
