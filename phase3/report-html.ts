@@ -191,8 +191,8 @@ function esc(s: string) {
 }
 
 function priorityBadge(p: string) {
-  const bg: Record<string,string> = { high:'#dc2626', medium:'#d97706', low:'#16a34a' };
-  return `<span class="badge" style="background:${bg[p]??'#6b7280'}">${p}</span>`;
+  const bg: Record<string,string> = { high:'#E64B38', medium:'#d97706', low:'#16a34a' };
+  return `<span class="badge" style="background:${bg[p]??'#968694'}">${p}</span>`;
 }
 
 function buildHtml(d: ReturnType<typeof loadData>): string {
@@ -224,8 +224,8 @@ function buildHtml(d: ReturnType<typeof loadData>): string {
       <td style="vertical-align:top;padding-top:10px"><span class="cat-badge">${esc(r.category)}</span></td>
       <td style="font-size:13px;white-space:normal;word-break:break-word;line-height:1.5">${esc(r.fullReq)}</td>
       <td class="num" style="vertical-align:top;padding-top:10px">${r.count}</td>
-      <td class="num" style="color:#2563eb;vertical-align:top;padding-top:10px">${r.cfpb}</td>
-      <td class="num" style="color:#7c3aed;vertical-align:top;padding-top:10px">${r.reddit}</td>
+      <td class="num" style="color:#0071CE;vertical-align:top;padding-top:10px">${r.cfpb}</td>
+      <td class="num" style="color:#968694;vertical-align:top;padding-top:10px">${r.reddit}</td>
       <td style="vertical-align:top;padding-top:8px"><button class="show-ex-btn" onclick="toggleReqExamples(${i},this)">Examples ▾</button></td>
     </tr>
     <tr class="req-ex-row" id="req-ex-${i}" style="display:none">
@@ -239,9 +239,9 @@ function buildHtml(d: ReturnType<typeof loadData>): string {
   ).join('');
 
   const topThemePreview = topThemes.slice(0, 5).map(([t, n]) =>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9">
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #E8E3E8">
       <span class="theme-tag">${esc(t)}</span>
-      <span style="font-size:12px;color:#64748b;font-weight:600">${n} records</span>
+      <span style="font-size:12px;color:#968694;font-weight:600">${n} records</span>
     </div>`
   ).join('');
 
@@ -251,105 +251,107 @@ function buildHtml(d: ReturnType<typeof loadData>): string {
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Medical Billing Complaint Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 <script>CHARTJS_PLACEHOLDER</script>
 <style>
+:root{--masa-horizon:#230871;--masa-tide:#0071CE;--masa-flare:#E64B38;--masa-shine:#FFD040;--masa-harbor:#968694;--masa-harbor-tint:#E8E3E8;--masa-body:#262626;--masa-white:#FFFFFF;--font-heading:'Poppins',sans-serif;--font-body:'Open Sans',sans-serif;--radius-card:8px;--radius-btn:4px;--shadow-card:0 2px 8px rgba(35,8,113,0.10)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;font-size:14px}
+body{font-family:var(--font-body);background:#f4f2f8;color:var(--masa-body);font-size:14px}
 /* ── Nav ── */
-.nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100}
-.nav-brand{font-size:15px;font-weight:700;color:#1e293b;padding:16px 20px 16px 0;border-right:1px solid #e2e8f0;margin-right:8px;white-space:nowrap}
-.tab-btn{padding:16px 18px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:500;color:#64748b;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
-.tab-btn:hover{color:#1e293b}
-.tab-btn.active{color:#2563eb;border-bottom-color:#2563eb}
+.nav{background:var(--masa-horizon);border-bottom:none;padding:0 24px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(35,8,113,0.25)}
+.nav-brand{font-family:var(--font-heading);font-size:15px;font-weight:700;color:var(--masa-white);padding:16px 20px 16px 0;border-right:1px solid rgba(255,255,255,0.2);margin-right:8px;white-space:nowrap}
+.tab-btn{font-family:var(--font-heading);padding:16px 18px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,0.65);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.tab-btn:hover{color:var(--masa-white)}
+.tab-btn.active{color:var(--masa-white);border-bottom-color:var(--masa-tide)}
 .tab-content{display:none;padding:28px 24px;max-width:1200px;margin:0 auto}
 .tab-content.active{display:block}
 /* ── Shared ── */
-h2{font-size:15px;font-weight:600;margin-bottom:14px;color:#374151}
-.panel{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:20px}
+h2{font-family:var(--font-heading);font-size:15px;font-weight:600;margin-bottom:14px;color:var(--masa-horizon)}
+.panel{background:var(--masa-white);border:1px solid var(--masa-harbor-tint);border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow-card)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:20px}
 canvas{max-height:280px}
 table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:8px 10px;border-bottom:2px solid #e2e8f0;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-td{padding:8px 10px;border-bottom:1px solid #f1f5f9;vertical-align:top}
+th{font-family:var(--font-heading);text-align:left;padding:8px 10px;border-bottom:2px solid var(--masa-harbor-tint);font-size:11px;color:var(--masa-harbor);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--masa-harbor-tint);vertical-align:top}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#f8fafc}
+tr:hover td{background:#f7f5f9}
 .num{text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
-.badge{color:#fff;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:600;text-transform:uppercase;display:inline-block}
-.cat-badge{font-size:11px;background:#f3f4f6;padding:2px 7px;border-radius:4px;white-space:nowrap}
-.src-cfpb{background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
-.src-reddit{background:#7c3aed;color:#fff;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
+.badge{color:#fff;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:700;font-family:var(--font-heading);text-transform:uppercase;display:inline-block}
+.cat-badge{font-family:var(--font-heading);font-size:11px;background:var(--masa-harbor-tint);color:var(--masa-horizon);padding:2px 7px;border-radius:4px;white-space:nowrap}
+.src-cfpb{background:var(--masa-tide);color:#fff;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;font-family:var(--font-heading)}
+.src-reddit{background:var(--masa-harbor);color:#fff;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;font-family:var(--font-heading)}
 /* ── Overview ── */
-.hero{background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);color:#fff;border-radius:14px;padding:40px;margin-bottom:24px}
-.hero h1{font-size:26px;font-weight:700;margin-bottom:8px}
+.hero{background:linear-gradient(135deg,var(--masa-horizon) 0%,var(--masa-tide) 100%);color:#fff;border-radius:14px;padding:40px;margin-bottom:24px}
+.hero h1{font-family:var(--font-heading);font-size:26px;font-weight:700;margin-bottom:8px}
 .hero p{font-size:15px;opacity:.85;line-height:1.6;max-width:680px}
 .stat-row{display:flex;gap:32px;margin-top:24px;flex-wrap:wrap}
 .stat-row .s{text-align:center}
-.stat-row .s .v{font-size:28px;font-weight:700}
+.stat-row .s .v{font-family:var(--font-heading);font-size:28px;font-weight:700}
 .stat-row .s .l{font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 .step-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
-.step{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px}
+.step{background:var(--masa-white);border:1px solid var(--masa-harbor-tint);border-top:3px solid var(--masa-tide);border-radius:10px;padding:20px;box-shadow:var(--shadow-card)}
 .step .icon{font-size:28px;margin-bottom:10px}
-.step h3{font-size:13px;font-weight:700;margin-bottom:6px;color:#1e293b}
-.step p{font-size:12px;color:#64748b;line-height:1.6}
+.step h3{font-family:var(--font-heading);font-size:13px;font-weight:700;margin-bottom:6px;color:var(--masa-horizon)}
+.step p{font-size:12px;color:var(--masa-harbor);line-height:1.6}
 .source-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.source-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px}
+.source-card{background:var(--masa-white);border:1px solid var(--masa-harbor-tint);border-radius:10px;padding:20px;box-shadow:var(--shadow-card)}
 .source-card .src-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.source-card h3{font-size:14px;font-weight:700}
-.source-card p{font-size:12px;color:#64748b;line-height:1.6;margin-bottom:10px}
-.theme-tag{background:#eff6ff;color:#1d4ed8;padding:2px 8px;border-radius:9999px;font-size:11px}
+.source-card h3{font-family:var(--font-heading);font-size:14px;font-weight:700;color:var(--masa-horizon)}
+.source-card p{font-size:12px;color:var(--masa-body);line-height:1.6;margin-bottom:10px}
+.theme-tag{background:rgba(0,113,206,0.10);color:var(--masa-tide);padding:2px 8px;border-radius:9999px;font-size:11px;font-family:var(--font-heading)}
 /* ── Browser ── */
 .browser-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
-.browser-controls input{padding:8px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;width:260px;outline:none}
-.browser-controls input:focus{border-color:#3b82f6}
-.filter-btn{padding:6px 14px;border:1px solid #d1d5db;border-radius:7px;background:#fff;cursor:pointer;font-size:12px;font-weight:500}
-.filter-btn.active{background:#1e293b;color:#fff;border-color:#1e293b}
-.filter-btn:hover:not(.active){background:#f1f5f9}
-select.filter-select{padding:6px 10px;border:1px solid #d1d5db;border-radius:7px;font-size:12px;background:#fff;cursor:pointer}
-.record-count{font-size:12px;color:#64748b;margin-left:auto}
+.browser-controls input{font-family:var(--font-body);padding:8px 12px;border:1px solid var(--masa-harbor-tint);border-radius:var(--radius-btn);font-size:13px;width:260px;outline:none}
+.browser-controls input:focus{border-color:var(--masa-tide)}
+.filter-btn{font-family:var(--font-heading);padding:6px 14px;border:1px solid var(--masa-harbor-tint);border-radius:var(--radius-btn);background:var(--masa-white);cursor:pointer;font-size:12px;font-weight:500;color:var(--masa-body)}
+.filter-btn.active{background:var(--masa-horizon);color:#fff;border-color:var(--masa-horizon)}
+.filter-btn:hover:not(.active){background:var(--masa-harbor-tint)}
+select.filter-select{font-family:var(--font-body);padding:6px 10px;border:1px solid var(--masa-harbor-tint);border-radius:var(--radius-btn);font-size:12px;background:var(--masa-white);cursor:pointer}
+.record-count{font-size:12px;color:var(--masa-harbor);margin-left:auto}
 .record-list{display:flex;flex-direction:column;gap:10px;max-height:700px;overflow-y:auto;padding-right:4px}
-.record-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;transition:border-color .15s}
-.record-card:hover{border-color:#93c5fd}
+.record-card{background:var(--masa-white);border:1px solid var(--masa-harbor-tint);border-radius:10px;padding:16px;transition:border-color .15s;box-shadow:var(--shadow-card)}
+.record-card:hover{border-color:var(--masa-tide)}
 .record-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer}
 .record-header .meta{flex:1;min-width:0}
-.record-header .rec-title{font-weight:600;font-size:13px;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.record-header .subtitle{font-size:11px;color:#64748b}
+.record-header .rec-title{font-family:var(--font-heading);font-weight:600;font-size:13px;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--masa-horizon)}
+.record-header .subtitle{font-size:11px;color:var(--masa-harbor)}
 .themes-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
-.toggle-btn{font-size:11px;color:#3b82f6;cursor:pointer;background:none;border:none;padding:0;margin-top:2px;text-decoration:underline;white-space:nowrap}
-.detail{display:none;margin-top:10px;border-top:1px solid #f1f5f9;padding-top:10px}
+.toggle-btn{font-family:var(--font-heading);font-size:11px;color:var(--masa-tide);cursor:pointer;background:none;border:none;padding:0;margin-top:2px;text-decoration:underline;white-space:nowrap}
+.detail{display:none;margin-top:10px;border-top:1px solid var(--masa-harbor-tint);padding-top:10px}
 .detail.open{display:block}
 .detail-section{margin-bottom:8px}
-.detail-section h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:4px}
-.detail-section p{font-size:13px;line-height:1.6;color:#374151;white-space:pre-wrap;word-break:break-word}
+.detail-section h4{font-family:var(--font-heading);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--masa-harbor);margin-bottom:4px}
+.detail-section p{font-size:13px;line-height:1.6;color:var(--masa-body);white-space:pre-wrap;word-break:break-word}
 .detail-section ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:4px}
-.detail-section ul li{font-size:12px;color:#374151;padding-left:12px;position:relative}
-.detail-section ul li::before{content:"•";position:absolute;left:0;color:#9ca3af}
-.req-item{background:#f9fafb;border-radius:6px;padding:8px 10px;margin-bottom:5px;font-size:12px}
-.req-cat{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
-.req-text{font-weight:500;margin:2px 0}
-.req-evidence{color:#64748b;font-style:italic}
+.detail-section ul li{font-size:12px;color:var(--masa-body);padding-left:12px;position:relative}
+.detail-section ul li::before{content:"•";position:absolute;left:0;color:var(--masa-tide)}
+.req-item{background:var(--masa-harbor-tint);border-radius:6px;padding:8px 10px;margin-bottom:5px;font-size:12px}
+.req-cat{font-family:var(--font-heading);font-size:10px;color:var(--masa-harbor);text-transform:uppercase;letter-spacing:.5px}
+.req-text{font-family:var(--font-heading);font-weight:500;margin:2px 0}
+.req-evidence{color:var(--masa-harbor);font-style:italic}
 /* ── Download button ── */
-.dl-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#1e293b;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
-.dl-btn:hover{background:#334155}
+.dl-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:var(--masa-tide);color:#fff;border:none;border-radius:var(--radius-btn);font-size:12px;font-weight:700;font-family:var(--font-heading);cursor:pointer;white-space:nowrap;transition:background .15s}
+.dl-btn:hover{background:var(--masa-horizon)}
 /* ── Requirements examples ── */
-.show-ex-btn{font-size:11px;color:#3b82f6;cursor:pointer;background:none;border:1px solid #bfdbfe;border-radius:5px;padding:3px 8px;white-space:nowrap;transition:all .15s}
-.show-ex-btn:hover{background:#eff6ff}
-.show-ex-btn.open{color:#1d4ed8;background:#eff6ff}
-.req-ex-row td{background:#f8fafc}
+.show-ex-btn{font-family:var(--font-heading);font-size:11px;color:var(--masa-tide);cursor:pointer;background:none;border:1px solid rgba(0,113,206,0.3);border-radius:var(--radius-btn);padding:3px 8px;white-space:nowrap;transition:all .15s}
+.show-ex-btn:hover{background:rgba(0,113,206,0.08)}
+.show-ex-btn.open{color:var(--masa-horizon);background:rgba(0,113,206,0.08)}
+.req-ex-row td{background:#f7f5f9}
 .req-ex-list{display:flex;flex-direction:column;gap:8px;padding:4px 0}
-.req-ex-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px}
+.req-ex-card{background:var(--masa-white);border:1px solid var(--masa-harbor-tint);border-radius:var(--radius-card);padding:12px 14px}
 .req-ex-card-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
-.req-ex-card-title{font-size:13px;font-weight:600;color:#1e293b;flex:1;min-width:0}
+.req-ex-card-title{font-family:var(--font-heading);font-size:13px;font-weight:600;color:var(--masa-horizon);flex:1;min-width:0}
 .req-ex-pps{list-style:none;padding:0;display:flex;flex-direction:column;gap:3px}
-.req-ex-pps li{font-size:12px;color:#374151;padding-left:12px;position:relative}
-.req-ex-pps li::before{content:"•";position:absolute;left:0;color:#9ca3af}
+.req-ex-pps li{font-size:12px;color:var(--masa-body);padding-left:12px;position:relative}
+.req-ex-pps li::before{content:"•";position:absolute;left:0;color:var(--masa-tide)}
 @media(max-width:720px){.grid2,.grid3,.step-grid,.source-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <nav class="nav">
-  <div class="nav-brand">🏥 Medical Billing Intelligence</div>
+  <div class="nav-brand">Medical Billing Intelligence</div>
   <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview',this)">Overview</button>
   <button class="tab-btn" data-tab="insights" onclick="switchTab('insights',this)">Insights</button>
   <button class="tab-btn" data-tab="browse" onclick="switchTab('browse',this)">Browse Records</button>
@@ -417,10 +419,10 @@ select.filter-select{padding:6px 10px;border:1px solid #d1d5db;border-radius:7px
     <h2>Top Complaint Themes — Preview</h2>
     <p style="font-size:12px;color:#64748b;margin-bottom:14px">The most frequently identified themes across all analyzed records. See the Insights tab for full charts.</p>
     ${topThemePreview}
-    <p style="font-size:12px;color:#3b82f6;margin-top:12px;cursor:pointer" onclick="switchTab('insights',document.querySelector('[data-tab=insights]'))">View all themes in Insights →</p>
+    <p style="font-size:12px;color:#0071CE;margin-top:12px;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600" onclick="switchTab('insights',document.querySelector('[data-tab=insights]'))">View all themes in Insights →</p>
   </div>
 
-  <p style="font-size:12px;color:#94a3b8;text-align:center;padding:16px 0">
+  <p style="font-size:12px;color:#968694;text-align:center;padding:16px 0">
     Generated ${esc(now)} · Data is public record (CFPB) and public posts (Reddit) · Analysis model: claude-haiku-4-5
   </p>
 </div>
@@ -439,7 +441,7 @@ select.filter-select{padding:6px 10px;border:1px solid #d1d5db;border-radius:7px
 
 <!-- ══ TAB: BROWSE ════════════════════════════════════════════════════════════ -->
 <div class="tab-content" id="tab-browse">
-  <p style="color:#64748b;font-size:13px;margin-bottom:16px">Browse the full text of every analyzed complaint and post. Filter by source or theme, search by keyword.</p>
+  <p style="color:#968694;font-size:13px;margin-bottom:16px">Browse the full text of every analyzed complaint and post. Filter by source or theme, search by keyword.</p>
   <div class="panel" style="padding:20px">
     <div class="browser-controls">
       <input type="text" id="searchBox" placeholder="Search titles, text, themes…" oninput="filterRecords()"/>
@@ -459,18 +461,18 @@ select.filter-select{padding:6px 10px;border:1px solid #d1d5db;border-radius:7px
 
 <!-- ══ TAB: REQUIREMENTS ═════════════════════════════════════════════════════ -->
 <div class="tab-content" id="tab-requirements">
-  <p style="color:#64748b;font-size:13px;margin-bottom:16px">Product requirements extracted across all records, ranked by priority then frequency. CFPB and Reddit columns show how many records from each source surfaced this requirement. Click Examples to see the specific records behind each requirement.</p>
+  <p style="color:#968694;font-size:13px;margin-bottom:16px">Product requirements extracted across all records, ranked by priority then frequency. CFPB and Reddit columns show how many records from each source surfaced this requirement. Click Examples to see the specific records behind each requirement.</p>
   <div class="panel">
     <table>
-      <thead><tr><th>Priority</th><th>Category</th><th>Requirement</th><th title="Total">#</th><th title="From CFPB" style="color:#2563eb">CFPB</th><th title="From Reddit" style="color:#7c3aed">Reddit</th><th></th></tr></thead>
+      <thead><tr><th>Priority</th><th>Category</th><th>Requirement</th><th title="Total">#</th><th title="From CFPB" style="color:#0071CE">CFPB</th><th title="From Reddit" style="color:#968694">Reddit</th><th></th></tr></thead>
       <tbody>${reqRows}</tbody>
     </table>
   </div>
 </div>
 
 <script>
-const COLORS=['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#f97316','#6366f1','#14b8a6','#a855f7','#eab308','#22c55e','#0ea5e9'];
-const PRI_COLOR={high:'#dc2626',medium:'#d97706',low:'#16a34a'};
+const COLORS=['#0071CE','#230871','#968694','#E64B38','#4A90D9','#1A4A8A','#6B8DB5','#B0C8E8','#FFD040','#F0A030','#3D6B9A','#8AAECF','#5A3A8A','#9070B0','#C0A0D0'];
+const PRI_COLOR={high:'#E64B38',medium:'#d97706',low:'#16a34a'};
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function switchTab(name, btn) {
@@ -484,8 +486,8 @@ function switchTab(name, btn) {
 // ── Charts ────────────────────────────────────────────────────────────────────
 new Chart(document.getElementById('themeChart'),{type:'bar',data:{labels:${JSON.stringify(topThemes.map(([t])=>t))},datasets:[{data:${JSON.stringify(topThemes.map(([,n])=>n))},backgroundColor:COLORS,borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
 new Chart(document.getElementById('catChart'),{type:'bar',data:{labels:${JSON.stringify(topCats.map(([c])=>c))},datasets:[{data:${JSON.stringify(topCats.map(([,n])=>n))},backgroundColor:COLORS,borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
-new Chart(document.getElementById('ppChart'),{type:'bar',data:{labels:${JSON.stringify(topPPs.map(([p])=>p.length>60?p.slice(0,57)+'…':p))},datasets:[{data:${JSON.stringify(topPPs.map(([,n])=>n))},backgroundColor:'#3b82f6',borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
-new Chart(document.getElementById('priChart'),{type:'doughnut',data:{labels:['High','Medium','Low'],datasets:[{data:[${priCounts.high},${priCounts.medium},${priCounts.low}],backgroundColor:['#dc2626','#d97706','#16a34a'],borderWidth:0}]},options:{plugins:{legend:{position:'bottom'}},cutout:'60%'}});
+new Chart(document.getElementById('ppChart'),{type:'bar',data:{labels:${JSON.stringify(topPPs.map(([p])=>p.length>60?p.slice(0,57)+'…':p))},datasets:[{data:${JSON.stringify(topPPs.map(([,n])=>n))},backgroundColor:'#0071CE',borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}});
+new Chart(document.getElementById('priChart'),{type:'doughnut',data:{labels:['High','Medium','Low'],datasets:[{data:[${priCounts.high},${priCounts.medium},${priCounts.low}],backgroundColor:['#E64B38','#FFD040','#0071CE'],borderWidth:0}]},options:{plugins:{legend:{position:'bottom'}},cutout:'60%'}});
 
 // ── Record browser ────────────────────────────────────────────────────────────
 const ALL_RECORDS = ${JSON.stringify(browseData)};
